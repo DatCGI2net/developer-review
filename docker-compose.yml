@@ -15,3 +15,5 @@ services:
     command: flask run --port 8000 --host 0.0.0.0
     # Infinite loop, to keep it alive, for debugging
     # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
+    env_file:
+      - .env

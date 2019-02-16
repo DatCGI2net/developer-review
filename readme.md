@@ -33,3 +33,14 @@ docker build -t cubicasa-developer-test .
 docker-compose up web
 ```
 
+## Environtment file .env
+
+Due to the keys for twitter api, they are needed to be in the .env file in the root folder. Its content cand be something like this:
+
+```
+CONSUMER_KEY=hEbRvqi...jC45G
+CONSUMER_SECRET=jahNCl...Bhw
+ACCESS_TOKEN=24593...Kn
+ACCESS_TOKEN_SECRET=N...g
+```
+

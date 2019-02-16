@@ -4,15 +4,166 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <title>Tw333t</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    
   </head>
   <body>
+  
+      
+  <div class="jumbotron jumbotron-fluid p-2">
+  <div class="container">
+    <h1 class="display-4">A Funny App</h1>
+    <p class="lead">Just for testing purpose. 
+    There is no authentication and authorization process for frontend and backend.
+    It use axios for api request and bootstrap css 4.x for better ui components.
+    All are in just one file - index.html ;-)
+    </p>
+    
+  </div>
+  </div>
+  <main id="twitter_app" class="container" >
+  <div class="alert alert-light" v-if="loading">
+    Loading...
+    </div>
+  <div class="alert alert-success alert-dismissible fade show" 
+  role="alert" v-if="is_success">
+  Data has been loaded successfully!
+  <button v-on:click = 'closeAlert(1)' type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="alert alert-warning alert-dismissible fade show" 
+role="alert" v-if="error">
+  Ops! {[{ error }]}
+  <button v-on:click = 'closeAlert(0)'  type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="container" v-if="!loading">
+  <div class="row" >
+    <div class="col-12">
+        
+        <div class="form-group row">
+            <label class="float-right mr-2">Twitter handle</label>
+            <input name="screen_name" value="" v-model="screen_name"
+            placeholer="Enter a Twitter handle" class="form-control col-sm-2"
+            >
+            <button v-on:click = 'twitterFeed' 
+            type="button" class="col-sm-2 btn btn-info">Get Tweets</button>
+        </div>
+        
+    
+    </div>
+    
+  </div>
+  <div class="row">
+    <div class="col-12">
+        <tweets-list :tweets="tweets"></tweets-list>
+    </div>
+  </div>
+  </div>
+</main>
 
-  <!-- 
+  <script>
+  Vue.options.delimiters = ['{[{', '}]}'];
+  //tweet item
+  const tweetsItem = Vue.component('tweet-item', {
+     props: ['tweet'],
+     template: `<li class="list-group-item">
+       <div class="card">
+       <div class="card-body">
+         <h5 class="card-title" v-html="tweet.source"></h5>
+         <h6 class="card-subtitle mb-2 text-muted">{[{ tweet.created_at }]}</h6>
+         <p class="card-text">{[{ tweet.text }]}</p>
+         Favorite <span class="badge badge-primary badge-pill">{[{ tweet.favorite_count }]}</span>
+         Retweet <span class="badge badge-info badge-pill">{[{ tweet.retweet_count }]}</span>
+       </div>
+     </div></li>`
+  });
 
-    Build a Vue component that gets 3 latest tweets with a user inputted Twitter handle through the "Get tweets" -route.
+  // List of tweets
+  const tweetsList = Vue.component('tweets-list', {
 
-  -->
+    // define used components
+    components: {tweetsItem},
+    props: ['tweets'],
+    template: `
+     <ul id="tweets-list"class="list-group list-group-flush">
 
+        <!-- add :key="" directive -->
+        <tweet-item v-for="(tweet, index) in tweets" :key="index" :tweet="tweet"></tweet-item>
+     </ul>`
+  });
+
+  
+  const api_url = '/api/v1'
+  
+  new Vue({
+     el: "#twitter_app",
+     // define used components
+     components: {tweetsList},
+     data: {
+       tweets: [],
+       screen_name: '',
+       loading: false,
+       error: null,
+       is_success: false,
+     },
+     methods: {
+       closeAlert: function(v) {
+         this.error = null;
+         this.is_success  = false;
+       },
+       twitterFeed: function() {
+         var _this = this;
+         _this.loading = true;
+         _this.error = null;
+         _this.is_success  = false;
+         if (!_this.screen_name || _this.screen_name.trim() === '') {
+           _this.error = 'Please input a twitter handle!';
+           _this.loading = false;
+           setTimeout(()=>{
+             _this.closeAlert()
+          },5000);
+           return;
+         }
+         axios.get(`${api_url}/get_tweets`, {
+           params: {
+            screen_name: _this.screen_name
+           }
+         })
+         .then(function (response) {
+            if (response.data.status == 'success') {
+              _this.tweets = response.data.data; // Data existed
+              _this.is_success  = true;
+            } else {
+              console.log("response error:", response);
+              _this.is_success  = false;
+              _this.error = response.text;
+            }
+            _this.loading = false;
+            setTimeout(()=>{
+              _this.closeAlert()
+            },5000);
+           })
+           .catch(function (err) {
+               console.log(err);
+               _this.loading = false;
+               _this.error = err;
+               _this.is_success  = false;
+               setTimeout(()=>{
+                 _this.closeAlert()
+              },5000);
+           });
+       }
+     }
+   })
+  
+ </script>
+ 
   </body>
 </html>
