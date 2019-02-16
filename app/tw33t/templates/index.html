@@ -51,7 +51,7 @@ role="alert" v-if="error">
             <label class="float-right mr-2">Twitter handle</label>
             <input name="screen_name" value="" v-model="screen_name"
             placeholer="Enter a Twitter handle" class="form-control col-sm-2"
-            >
+            v-on:keyup.enter="twitterFeed">
             <button v-on:click = 'twitterFeed' 
             type="button" class="col-sm-2 btn btn-info">Get Tweets</button>
         </div>
